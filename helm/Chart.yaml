@@ -1,0 +1,6 @@
+apiVersion: v2
+name: dcis
+description: The installation for the Delphi Council Information System.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

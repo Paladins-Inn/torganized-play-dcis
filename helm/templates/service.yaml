@@ -1,0 +1,20 @@
+{{- range .Values.services }}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "dcis.fullname" . }}-{{ .name }}
+  labels:
+    {{- include "dcis.labels" . | nindent 4 }}
+    app.kubernetes.io/component: {{- .name }}
+spec:
+  type: {{ $.Values.service.type }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ $.Values.service.port }}
+      targetPort: http
+  selector:
+    {{- include "dcis.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: {{- .name }}
+{{ end }}

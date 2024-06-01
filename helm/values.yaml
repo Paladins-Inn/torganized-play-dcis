@@ -1,0 +1,135 @@
+# Default values for dcis.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8080
+
+services:
+  - name: commons
+    image:
+      repository: quay.io/dcis-commons
+      pullPolicy: IfNotPresent
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: ""
+    selector:
+      app.kubernetes.io/component: commons
+  - name: players
+    image:
+      repository: quay.io/dcis-players
+      pullPolicy: IfNotPresent
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: ""
+    selector:
+      app.kubernetes.io/component: players
+  - name: storm-knights
+    image:
+      repository: quay.io/dcis-storm-knights
+      pullPolicy: IfNotPresent
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: ""
+    selector:
+      app.kubernetes.io/component: storm-knights
+  - name: gaming
+    image:
+      repository: quay.io/dcis-gaming
+      pullPolicy: IfNotPresent
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: ""
+    selector:
+      app.kubernetes.io/component: gaming
+  - name: threads
+    image:
+      repository: quay.io/dcis-threads
+      pullPolicy: IfNotPresent
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: ""
+    selector:
+      app.kubernetes.io/component: threads
+
+ingress:
+  enabled: true
+  className: "openshift-default"
+  annotations:
+    kubernetes.io/ingress.class: openshift-default
+    kubernetes.io/tls-acme: "true"
+  host: dcis.torganized-play.org
+  tls:
+    - secretName: dcis-tls
+      hosts:
+        - dcis.torganized-play.org
+        - api.torganized-play.org
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 1024Mi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/live
+    port: http
+readinessProbe:
+  httpGet:
+    path: /actuator/health/ready
+    port: http
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+volumes:
+  - name: tmp
+    emptyDir:
+      sizeLimit: 512Mi
+    
+volumeMounts:
+  - name: tmp
+    mountPath: "/tmp"
+    readOnly: false
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
